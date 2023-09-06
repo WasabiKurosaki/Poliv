@@ -1,7 +1,7 @@
-import time 
+import time
 
 for i in range(30):
-    print('Hello, Al')
+    print("Hello, Al")
     time.sleep(2)
 
 # import queue
