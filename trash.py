@@ -22,7 +22,6 @@
 #     # return
 
 
-
 # class GeometryHelper:
 #     @staticmethod
 #     def euler_from_quaternion(x, y, z, w):

@@ -3,9 +3,14 @@ from scipy.spatial import ConvexHull
 from scipy.spatial.distance import cdist
 import math
 import itertools
+import scipy as sp
+from scipy import stats
+
 
 class OpencvMatrix:
     def __init__(self, pix_meter: int, x_list: list, y_list: list):
+        self.x_point_of_searching_sqr = x_list
+        self.y_point_of_searching_sqr = y_list
         self.create_cv_matrix(
             pix_meter, x_list, y_list
         )  # создается наша матрица np и задается ск
@@ -32,10 +37,8 @@ class OpencvMatrix:
         self, x_coord_in_our_system: float, y_coord_in_our_system: float, value: int
     ) -> None:
         """Вносим наши координаты точки и пополяем нашу матрицу переданным значением"""
-        # print(self.matrix[0, 0])
-        # print(y_coord_in_our_system, x_coord_in_our_system)
-        # print(-y_coord_in_our_system, x_coord_in_our_system)
         self.matrix[-int(y_coord_in_our_system), int(x_coord_in_our_system)] += value
+
 
     def translate_into_our_coordinate_system(self, x_uav: float, y_uav: float) -> tuple:
         """
@@ -96,34 +99,36 @@ class OpencvMatrix:
         ):
             try:
                 # print(x_center, x_point_in_our_system)
-                # print((
-                #         100
-                #         / (
-                #             (x_center - x_px_point_in_our_systemoint) ** 2
-                #             + (y_center - y_point_in_our_system) ** 2
-                #         )
-                #     ) * coef)
                 if (
-                    # (x_center != x_point_in_our_system)
-                    # and (y_center != y_point_in_our_system)
-                    (x_center != 0)
+                    (x_center != x_point_in_our_system)
+                    and (y_center != y_point_in_our_system)
+                    and (x_center != 0)
                     and (x_point_in_our_system != 0)
                     and (y_center != 0)
                     and (y_point_in_our_system != 0)
                 ):
-
+                    # print(
+                    #     (
+                        
+                    #      (
+                    #         (x_center - x_px_point_in_our_systemoint) ** 2
+                    #         + (y_center - y_point_in_our_system) ** 2
+                    #     )
+                    # ) * coef 
+                    # )
                     return (
-                        100
-                        / (
-                            (x_center - x_px_point_in_our_systemoint) ** 2
-                            + (y_center - y_point_in_our_system) ** 2
+                        
+                        10/(
+                            abs(x_center - x_px_point_in_our_systemoint) 
+                            + abs(y_center - y_point_in_our_system) 
                         )
-                    ) * coef
+                    ) #* coef 
                 else:
-                    return coef * 4
+                    return 0 #coef * 4
             except Exception as e:
-                print("ERROR")
-                return coef * 4
+                print(e)
+                print("ERROR:", x_center, x_point_in_our_system)
+                return coef * 3
 
         x_list = np.array(
             [
@@ -179,38 +184,82 @@ class OpencvMatrix:
         Полная итерация для одной точки
         """
 
-        # нам приходит точка в координатах симулятор, мы ее переводим в наши координаты
-        (
-            x_coord_in_our_system,
-            y_coord_in_our_system,
-        ) = self.translate_into_our_coordinate_system(x_uav=x_uav, y_uav=y_uav)
+        # проверяем находит ли наша точка внутри нашей исследуемой площади
+        if self.inPolygon(x=x_uav, y=y_uav):
+            # нам приходит точка в координатах симулятор, мы ее переводим в наши координаты
+            (
+                x_coord_in_our_system,
+                y_coord_in_our_system,
+            ) = self.translate_into_our_coordinate_system(x_uav=x_uav, y_uav=y_uav)
 
-        # вычисляем необходимые данные о конусе: его ширину основания и координаты центра
-        x_center, y_center = self.calculate_spray_cone_center(
-            x_poix_point_in_our_system=x_coord_in_our_system,
-            y_point_in_our_system=y_coord_in_our_system,
-            x_rad_angle=1,
-            y_rad_angle=1,
-            n_bias_meter=1,
-        )
-        spray_cone_size = self.calculate_spray_cone_size(
-            z=z_uav, cone_apex_triangle_angle=20
-        )
+            # вычисляем необходимые данные о конусе: его ширину основания и координаты центра
+            x_center, y_center = self.calculate_spray_cone_center(
+                x_poix_point_in_our_system=x_coord_in_our_system,
+                y_point_in_our_system=y_coord_in_our_system,
+                x_rad_angle=1,
+                y_rad_angle=1,
+                n_bias_meter=1,
+            )
+            spray_cone_size = self.calculate_spray_cone_size(
+                z=z_uav, cone_apex_triangle_angle=10
+            )
 
-        # подсчитываем какие точки попадают под наш конус
-        point_list = self.calculate_included_spray_points(
-            x_center=x_center,
-            y_center=y_center,
-            x_point_in_our_system=x_coord_in_our_system,
-            y_point_in_our_system=y_coord_in_our_system,
-            spray_cone_size=spray_cone_size,
-        )
+            # подсчитываем какие точки попадают под наш конус
+            point_list = self.calculate_included_spray_points(
+                x_center=x_center,
+                y_center=y_center,
+                x_point_in_our_system=x_coord_in_our_system,
+                y_point_in_our_system=y_coord_in_our_system,
+                spray_cone_size=spray_cone_size,
+            )
 
-        # наносим значения распыления на нашу матрицу для этих точек
-        self.spray_on_neigh_cells(point_list=point_list)
+            # нормализуем данные
+            Gauss = lambda t: t/max(point_list[:,2])*256  #A*np.exp(-1*B*t**2)
+            # print(point_list[:,2])
+            point_list[:,2] = Gauss(point_list[:,2])
 
-        # print(self.matrix.min())
-        # print(np.count_nonzero(self.matrix == 0 ))
+            #отсеим наши точки по принципу удаленности от центра:
+            def check_if_close(x1, x2, y1, y2, spray_cone_size):
+                distance = ((x1 - x2)**2 + (y1 - y2)**2)**0.5 
+                print(distance, spray_cone_size)
+
+                if distance <= spray_cone_size:
+                    return True
+                else:
+                    return False
+
+            # print(point_list_to_cv[0]) a_del = np.delete(a, 1, 0) - ноль это строчка
+            # print(len(point_list))
+            ans_list = []
+            for i in range(len(point_list)):
+                if check_if_close(
+                    x1=point_list[i][0],
+                    y1=point_list[i][1],
+                    x2=x_center,
+                    y2=y_center,
+                    spray_cone_size=spray_cone_size
+                ):
+                    ans_list.append(point_list[i])
+                else:
+                    # print(i)
+                    # ans_list.append(point_list[i])
+                    # np.delete(point_list, i, 0)
+                    pass
+            # print(len(ans_list))
+                
+
+
+            # наносим значения распыления на нашу матрицу для этих точек
+            self.spray_on_neigh_cells(point_list=ans_list)
+
+            print("\nSucsesfully added point on matrix")
+
+            print("Минимальное значение в нашей матрице:", self.matrix.min())
+            print("Среднее значение в нашей матрице:", self.matrix.mean())
+            print("Максимальное значение в нашей матрице:", self.matrix.max())
+            print("Размер нашей матрицы:", self.matrix.shape)
+        else:
+            print("\nNow our drone is out of range")
 
     @staticmethod
     def get_width_and_length(pix_meter: int, x_list: list, y_list: list) -> tuple:
@@ -222,22 +271,25 @@ class OpencvMatrix:
 
         return pix_meter * h_matrix, pix_meter * w_matrix
 
+    def inPolygon(self, x: float, y: float) -> bool:
+        xp = self.x_point_of_searching_sqr
+        yp = self.y_point_of_searching_sqr
+        c = 0
+        for i in range(len(xp)):
+            if ((yp[i] <= y and y < yp[i - 1]) or (yp[i - 1] <= y and y < yp[i])) and (
+                x > (xp[i - 1] - xp[i]) * (y - yp[i]) / (yp[i - 1] - yp[i]) + xp[i]
+            ):
+                c = 1 - c
+        return c == 1
 
-class Poliv:
-    def __init__(self, matrix_handler: OpencvMatrix):
-        self.matrix_handler = matrix_handler
 
-    def get_pose_drone_coord():
-        cmd = "gz topic -e --json-output -t /world/sitl/pose/info -n 1"  # вот отсюда тягаем координаты
-        with Popen(cmd, stdout=PIPE, stderr=None, shell=True) as process:
-            output = process.communicate()[0].decode("utf-8")
-            json_object = json.loads(output)
-            # print(json_object.get('pose')[1]) #.get('position'))
-            return json_object.get("pose")[1]
+test_obj = OpencvMatrix(4, x_list=[1156, 1226, 1050, 980], y_list=[811, 880, 1058, 988])
+test_obj.make_one_full_iteration(1100, 900, 10)
 
-test_obj = OpencvMatrix(3, x_list=[1156, 1226, 1050, 980], y_list=[811, 880, 1058, 988])
-test_obj.make_one_full_iteration(1000, 811, 10)
 
+# x_data = np.arange(-5, 5, 0.001)
+# y_data = stats.norm.pdf(x_data, 0, 1)
+# print(type(y_data))
 
 # print(test_obj.put_point_in_matrix(1000, 811, 2))
 # print(test_obj.calculate_included_spray_points(40, 20, 50, 20, 10))
@@ -251,3 +303,12 @@ test_obj.make_one_full_iteration(1000, 811, 10)
 # }
 # test_helper = GeometryHelper.euler_from_quaternion(**qt_example)
 # print(test_helper)
+
+# def inPolygon(x, y, xp, yp):
+#     c=0
+#     for i in range(len(xp)):
+#         if (((yp[i]<=y and y<yp[i-1]) or (yp[i-1]<=y and y<yp[i])) and
+#             (x > (xp[i-1] - xp[i]) * (y - yp[i]) / (yp[i-1] - yp[i]) + xp[i])): c = 1 - c
+#     return c==1
+
+# print( inPolygon(100, 1000, (-100, 100, 100, -100), (100, 100, -100, -100)))

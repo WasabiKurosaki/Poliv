@@ -15,6 +15,3 @@
 
 
 # translate_into_our_coordinate_system(1, 2, 3)
-
-
-
