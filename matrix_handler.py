@@ -39,7 +39,6 @@ class OpencvMatrix:
         """Вносим наши координаты точки и пополяем нашу матрицу переданным значением"""
         self.matrix[-int(y_coord_in_our_system), int(x_coord_in_our_system)] += value
 
-
     def translate_into_our_coordinate_system(self, x_uav: float, y_uav: float) -> tuple:
         """
         Перемещаем саму СК в левый нижний угол нашей матрицы + домножаем на pixel_meter.
@@ -100,31 +99,15 @@ class OpencvMatrix:
             try:
                 # print(x_center, x_point_in_our_system)
                 if (
-                    (x_center != x_point_in_our_system)
-                    and (y_center != y_point_in_our_system)
-                    and (x_center != 0)
-                    and (x_point_in_our_system != 0)
-                    and (y_center != 0)
-                    and (y_point_in_our_system != 0)
+                    abs(x_center - x_px_point_in_our_systemoint)
+                    + abs(y_center - y_point_in_our_system)
                 ):
-                    # print(
-                    #     (
-                        
-                    #      (
-                    #         (x_center - x_px_point_in_our_systemoint) ** 2
-                    #         + (y_center - y_point_in_our_system) ** 2
-                    #     )
-                    # ) * coef 
-                    # )
-                    return (
-                        
-                        10/(
-                            abs(x_center - x_px_point_in_our_systemoint) 
-                            + abs(y_center - y_point_in_our_system) 
-                        )
-                    ) #* coef 
+                    return 10 / (
+                        abs(x_center - x_px_point_in_our_systemoint)
+                        + abs(y_center - y_point_in_our_system)
+                    )  # * coef
                 else:
-                    return 0 #coef * 4
+                    return 0  # coef * 4
             except Exception as e:
                 print(e)
                 print("ERROR:", x_center, x_point_in_our_system)
@@ -214,16 +197,16 @@ class OpencvMatrix:
             )
 
             # нормализуем данные
-            Gauss = lambda t: t/max(point_list[:,2])*256  #A*np.exp(-1*B*t**2)
+            Gauss = lambda t: t / max(point_list[:, 2]) * 256  # A*np.exp(-1*B*t**2)
             # print(point_list[:,2])
-            point_list[:,2] = Gauss(point_list[:,2])
+            point_list[:, 2] = Gauss(point_list[:, 2])
 
-            #отсеим наши точки по принципу удаленности от центра:
+            # отсеим наши точки по принципу удаленности от центра:
             def check_if_close(x1, x2, y1, y2, spray_cone_size):
-                distance = ((x1 - x2)**2 + (y1 - y2)**2)**0.5 
-                print(distance, spray_cone_size)
+                distance = ((x1 - x2) ** 2 + (y1 - y2) ** 2) ** 0.5
+                # print(distance, spray_cone_size)
 
-                if distance <= spray_cone_size:
+                if distance <= spray_cone_size / 2:
                     return True
                 else:
                     return False
@@ -237,7 +220,7 @@ class OpencvMatrix:
                     y1=point_list[i][1],
                     x2=x_center,
                     y2=y_center,
-                    spray_cone_size=spray_cone_size
+                    spray_cone_size=spray_cone_size,
                 ):
                     ans_list.append(point_list[i])
                 else:
@@ -246,8 +229,6 @@ class OpencvMatrix:
                     # np.delete(point_list, i, 0)
                     pass
             # print(len(ans_list))
-                
-
 
             # наносим значения распыления на нашу матрицу для этих точек
             self.spray_on_neigh_cells(point_list=ans_list)

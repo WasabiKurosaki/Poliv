@@ -44,10 +44,24 @@ class Poliv:
         # img = Image.fromarray(self.matrix_handler.matrix)
         # image_filename = "our_territory.jpeg"
         # img.save(image_filename)
-        cv2.imwrite('output.png', self.matrix_handler.matrix)
+        # rectangle =
+        x_arr = np.array(self.matrix_handler.x_point_of_searching_sqr).reshape(4, 1)
+        y_arr = np.array(self.matrix_handler.y_point_of_searching_sqr).reshape(4, 1)
+        # print(x_arr.reshape(4, 1))
+        # print(np.concatenate((x_arr, y_arr), axis=1))
+        our_rect_massive = np.concatenate((x_arr, y_arr), axis=1)
+        img_mod = cv2.polylines(
+            self.matrix_handler.matrix,
+            [our_rect_massive],
+            True,
+            (0, 255, 0),
+            thickness=3,
+        )
+        cv2.imwrite("output.png", img_mod)
+        ...
 
     def save_matrix_to_csv(self):
         # np.set_printoptions(threshold=sys.maxsize)
         # print(self.matrix_handler.matrix)
         df = pd.DataFrame(self.matrix_handler.matrix)
-        df.to_csv('data.csv', index=True)
+        df.to_csv("data.csv", index=True)
