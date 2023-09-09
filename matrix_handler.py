@@ -31,7 +31,6 @@ class OpencvMatrix:
             y_coord_in_our_system,
         ) = self.translate_into_our_coordinate_system(x_uav, y_uav)
         self.matrix[-y_coord_in_our_system, x_coord_in_our_system] = value
-        # print(self.matrix[-y_coord_in_our_system, x_coord_in_our_system])
 
     def put_point_from_our_coord_in_matrix(
         self, x_coord_in_our_system: float, y_coord_in_our_system: float, value: int
@@ -97,15 +96,14 @@ class OpencvMatrix:
             coef=10,  # вот этот коэффициент желательно подогнать
         ):
             try:
-                # print(x_center, x_point_in_our_system)
                 if (
                     abs(x_center - x_px_point_in_our_systemoint)
                     + abs(y_center - y_point_in_our_system)
                 ):
                     return 10 / (
-                        abs(x_center - x_px_point_in_our_systemoint)
-                        + abs(y_center - y_point_in_our_system)
-                    )  # * coef
+                        abs(x_center - x_px_point_in_our_systemoint)/5
+                        + abs(y_center - y_point_in_our_system)/5
+                    )  * coef
                 else:
                     return 0  # coef * 4
             except Exception as e:
@@ -211,8 +209,6 @@ class OpencvMatrix:
                 else:
                     return False
 
-            # print(point_list_to_cv[0]) a_del = np.delete(a, 1, 0) - ноль это строчка
-            # print(len(point_list))
             ans_list = []
             for i in range(len(point_list)):
                 if check_if_close(
@@ -224,11 +220,7 @@ class OpencvMatrix:
                 ):
                     ans_list.append(point_list[i])
                 else:
-                    # print(i)
-                    # ans_list.append(point_list[i])
-                    # np.delete(point_list, i, 0)
                     pass
-            # print(len(ans_list))
 
             # наносим значения распыления на нашу матрицу для этих точек
             self.spray_on_neigh_cells(point_list=ans_list)
