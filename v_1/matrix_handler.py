@@ -96,14 +96,17 @@ class OpencvMatrix:
             coef=10,  # вот этот коэффициент желательно подогнать
         ):
             try:
-                if (
-                    abs(x_center - x_px_point_in_our_systemoint)
-                    + abs(y_center - y_point_in_our_system)
+                if abs(x_center - x_px_point_in_our_systemoint) + abs(
+                    y_center - y_point_in_our_system
                 ):
-                    return 10 / (
-                        abs(x_center - x_px_point_in_our_systemoint)/5
-                        + abs(y_center - y_point_in_our_system)/5
-                    )  * coef
+                    return (
+                        10
+                        / (
+                            abs(x_center - x_px_point_in_our_systemoint) / 5
+                            + abs(y_center - y_point_in_our_system) / 5
+                        )
+                        * coef
+                    )
                 else:
                     return 0  # coef * 4
             except Exception as e:

@@ -45,17 +45,22 @@ class Poliv:
         y_arr = np.array(self.matrix_handler.y_point_of_searching_sqr).reshape(4, 1)
         # self.matrix_handler.matrix_columns
         # print(x_arr.reshape(4, 1))
-        # print(np.concatenate((x_arr, y_arr), axis=1)) self.matrix_handler.matrix_columns - 
+        # print(np.concatenate((x_arr, y_arr), axis=1)) self.matrix_handler.matrix_columns -
         our_rect_massive = np.concatenate((x_arr, y_arr), axis=1)
         for i in range(len(our_rect_massive)):
             print(our_rect_massive[i], self.matrix_handler.matrix_rows)
-            print(abs(int((our_rect_massive[i][0] - self.matrix_handler.matrix_rows/2))))
-            our_rect_massive[i] = self.matrix_handler.translate_into_our_coordinate_system((our_rect_massive[i][0]),
-                                                                                           our_rect_massive[i][1])
-            
+            print(
+                abs(int((our_rect_massive[i][0] - self.matrix_handler.matrix_rows / 2)))
+            )
+            our_rect_massive[
+                i
+            ] = self.matrix_handler.translate_into_our_coordinate_system(
+                (our_rect_massive[i][0]), our_rect_massive[i][1]
+            )
+
         # our_rect_massive = our_rect_massive.T
         print(our_rect_massive)
-        
+
         matrix_to_png = np.rot90(self.matrix_handler.matrix)
         img_mod = cv2.polylines(
             self.matrix_handler.matrix,
