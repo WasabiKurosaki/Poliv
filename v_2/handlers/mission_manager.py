@@ -3,7 +3,14 @@ from handlers.conus import Conus
 
 
 class SprayMission:
-    def __init__(self, matrix_manager, point_manager, conus_manager, gazebo_listener, opencv_manager) -> None:
+    def __init__(
+        self,
+        matrix_manager,
+        point_manager,
+        conus_manager,
+        gazebo_listener,
+        opencv_manager,
+    ) -> None:
         self.matrix_manager = matrix_manager
         self.point_manager = point_manager
         self.conus_manager = conus_manager
@@ -65,7 +72,6 @@ class SprayMission:
             print("Размер нашей матрицы:", self.matrix_manager.matrix.shape)
         else:
             print("\nNow our drone is out of range")
-
 
     def catch_point_and_place_on_matrix(self):
         xyz_dict = self.gazebo_listener.get_pose_drone_coord_xyz()

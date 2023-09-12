@@ -34,34 +34,36 @@ class Point:
             ):
                 c = 1 - c
         return c == 1
-    
+
     @staticmethod
     def add_pollinating_liquid_values(
         x_center: float,
         y_center: float,
         x_point_in_our_system: float,
         y_point_in_our_system: float,
-        coef=5,  # вот этот коэффициент желательно подогнать
+        coef=400,  # вот этот коэффициент желательно подогнать
     ):
         try:
             if abs(x_center - x_point_in_our_system) + abs(
                 y_center - y_point_in_our_system
             ):
-                return (
-                    10
-                    / (
-                        abs(x_center - x_point_in_our_system) / 5
-                        + abs(y_center - y_point_in_our_system) / 5
-                    )
-                    * coef
-                )
+                return 0.2 * (100 -  (
+                        abs(x_center - x_point_in_our_system)
+                        + abs(y_center - y_point_in_our_system)
+                    ))
+            # coef / (
+            #          (
+            #             abs(x_center - x_point_in_our_system)
+            #             + abs(y_center - y_point_in_our_system)
+            #         )
+            #     )
             else:
                 return 0  # coef * 4
         except Exception as e:
             print(e)
             print("ERROR:", x_center, x_point_in_our_system)
             return coef * 3
-        
+
     def calculate_included_spray_points(
         self,
         x_center: float,
@@ -109,11 +111,6 @@ class Point:
                     y_center,
                 ),
             )
-        
-
-
-
-
 
         # отсеим наши точки по принципу удаленности от центра:
         def check_if_close(x1, x2, y1, y2, spray_cone_size):
@@ -139,9 +136,7 @@ class Point:
                 pass
         # print(ans_list)
         return ans_list
-    
 
     def control_fertilize(self, ans_list: np.array):
         # в милилитрах нормируем массив
-        meters_under_conus = ans_list.shape[0]*ans_list.shape[1]/pixel_meter
-        
+        meters_under_conus = ans_list.shape[0] * ans_list.shape[1] / pixel_meter

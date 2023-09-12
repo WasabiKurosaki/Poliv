@@ -17,7 +17,7 @@ y_list = [811, 880, 1058, 988]
 cmd = "gz topic -e --json-output -t /world/sitl/pose/info -n 1"  
 
 #временной шаг через сколько наносим опыленную территорию в секунлу
-timestamp = 0.2 
+timestamp = 0.5 
 
 # соответсвенно за одну итерацию будет наноситься drone_lirt_per_min/60*timestamp * 1000
 fertilizer_per_iteration = drone_lirt_per_min/60*timestamp*1000
