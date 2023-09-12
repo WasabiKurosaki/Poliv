@@ -8,8 +8,8 @@ from handlers.opencv_manager import OpencvManager
 
 
 matrix_manager = Matrix(
-    x_mission_list_origin=[1156, 1226, 1050, 980],
-    y_mission_list_origin=[811, 880, 1058, 988],
+    x_mission_list_origin=[1156, 1229, 1055, 980],
+    y_mission_list_origin=[811, 880, 1065, 988],
 )
 
 point_manager = Point()

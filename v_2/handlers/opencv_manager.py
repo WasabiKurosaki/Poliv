@@ -109,10 +109,15 @@ class OpencvManager:
     def overlay_images(self):
  
         background = cv2.imread(settings.path_to_small_map)
+        dim = background.shape
+        width_pers = 5
+        height_pesr = 5
+        background = background[500:4300, 200:4300][:]
+        print(background.shape)
+
         overlay = cv2.imread(settings.path_to_saved_mission)
-        background = cv2.resize(background, (overlay.shape[0], overlay.shape[1]))
-        print(background.shape, overlay.shape)
-        added_image = cv2.addWeighted(background,0.4,overlay,0.1,0)
+        background = cv2.resize(background, (overlay.shape[1], overlay.shape[0]))
+        added_image = cv2.addWeighted(background,0.9,overlay,0.7,0)
 
         cv2.imwrite('combined.png', added_image)
 

@@ -47,6 +47,14 @@ class Matrix:
         self, x_coord_in_our_system: float, y_coord_in_our_system: float, value: int
     ) -> None:
         """Вносим наши координаты точки и пополяем нашу матрицу переданным значением"""
+
+
+        # hardcooode
+        if x_coord_in_our_system >= self.matrix.shape[1]:
+            x_coord_in_our_system = self.matrix.shape[1] - 1
+        if y_coord_in_our_system >= self.matrix.shape[0]:
+            y_coord_in_our_system = self.matrix.shape[0] - 1
+        # ---
         self.matrix[-int(y_coord_in_our_system), int(x_coord_in_our_system)] += value
 
     def spray_on_neigh_cells(self, point_list: np.array) -> None:
