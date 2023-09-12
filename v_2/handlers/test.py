@@ -1,5 +1,4 @@
 # from pynput import keyboard
-
 # def on_press(key):
 #     try:
 #         print(f'Нажата буквенно-цифровая клавиша: {key.char}')

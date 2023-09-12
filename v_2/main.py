@@ -6,5 +6,5 @@ for i in range(12):
     mission_manager.catch_point_and_place_on_matrix()
     time.sleep(timestamp)
 
-mission_manager.save_to_png()
-# mission_manager.colour_image_matrix()
+# mission_manager.save_to_png()
+mission_manager.colour_image_matrix()

@@ -1,5 +1,6 @@
 from handlers.point import Point
 from handlers.conus import Conus
+from settings import recommended_fertz_for_pixel
 
 
 class SprayMission:
@@ -69,7 +70,7 @@ class SprayMission:
                 "Максимальное значение в нашей матрице:",
                 self.matrix_manager.matrix.max(),
             )
-            print("Размер нашей матрицы:", self.matrix_manager.matrix.shape)
+            # print("Размер нашей матрицы:", self.matrix_manager.matrix.shape)
         else:
             print("\nNow our drone is out of range")
 
@@ -83,4 +84,4 @@ class SprayMission:
         self.opencv_manager.save_matrix_to_png(self.matrix_manager.matrix)
 
     def colour_image_matrix(self):
-        self.opencv_manager.colour_image_matrix(self.matrix_manager.matrix)
+        self.opencv_manager.colour_image_matrix(self.matrix_manager.matrix, self.point_manager.norm_coeff_80)

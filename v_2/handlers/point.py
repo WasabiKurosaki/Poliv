@@ -1,4 +1,4 @@
-from settings import pixel_meter, x_list, y_list
+from settings import pixel_meter, x_list, y_list, recommended_fertz_for_pixel
 import itertools
 import numpy as np
 
@@ -46,19 +46,14 @@ class Point:
         try:
             if abs(x_center - x_point_in_our_system) + abs(
                 y_center - y_point_in_our_system
-            ):
+            ) != 0:
                 return 0.2 * (100 -  (
                         abs(x_center - x_point_in_our_system)
                         + abs(y_center - y_point_in_our_system)
                     ))
-            # coef / (
-            #          (
-            #             abs(x_center - x_point_in_our_system)
-            #             + abs(y_center - y_point_in_our_system)
-            #         )
-            #     )
             else:
-                return 0  # coef * 4
+                # значит мы зашли в центр окружности
+                return 0  
         except Exception as e:
             print(e)
             print("ERROR:", x_center, x_point_in_our_system)
@@ -134,9 +129,23 @@ class Point:
                 ans_list.append(ans_array[i])
             else:
                 pass
-        # print(ans_list)
+        ans_list = self.control_fertilize(ans_list)
         return ans_list
 
-    def control_fertilize(self, ans_list: np.array):
+    def control_fertilize(self, ans_list: list[np.array]):
         # в милилитрах нормируем массив
-        meters_under_conus = ans_list.shape[0] * ans_list.shape[1] / pixel_meter
+        pixels_to_norm = len(ans_list) 
+        max_val = max(ans_list[:][2])
+
+        # summator = 0
+        # for i in range(pixels_to_norm):
+        #     summator+=ans_list[i][2]
+        
+        # сделаем тупой ход и примем на целую меру от пиксела - центр пикселя под дроном и понадеемся, 
+        # что это серединный элемент нашего списка (пока не знаю как оптимально выбрать это без нагромаждений)
+        # ans_list[pixels_to_norm//2][2] - будем пока что считать именно этим значением эталон - 80% опыления
+
+        self.norm_coeff_80 = recommended_fertz_for_pixel / max_val * 0.8
+        for i in range(pixels_to_norm):
+            ans_list[i][2] = self.norm_coeff_80 * ans_list[i][2] * 10   # * 10000 возможно стоит добавить, так как коэффициент совсем маленький получается
+        return ans_list
