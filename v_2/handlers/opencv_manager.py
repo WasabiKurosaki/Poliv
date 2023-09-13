@@ -112,12 +112,12 @@ class OpencvManager:
         dim = background.shape
         width_pers = 5
         height_pesr = 5
-        background = background[500:4300, 200:4300][:]
-        print(background.shape)
+        background = background[200:4400, 200:4300][:]
+        # print(background.shape)
 
         overlay = cv2.imread(settings.path_to_saved_mission)
         background = cv2.resize(background, (overlay.shape[1], overlay.shape[0]))
-        added_image = cv2.addWeighted(background,0.9,overlay,0.7,0)
+        added_image = cv2.addWeighted(background,0.9,overlay,0.8,0)
 
         cv2.imwrite('combined.png', added_image)
 
