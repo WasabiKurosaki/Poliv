@@ -35,3 +35,37 @@ path_to_saved_mission = (
 common_folder_to_save_png = (
     "/home/wasabi/Desktop/UAF/PolivProcessing/Poliv/v_2/mission_images"
 )
+
+
+
+# Настройки логирования
+debug_format = \
+    "{time:DD-MM-YYYY at HH:mm:ss} | {level} | file: {file} | func: {function} | line: {line} | message: {message}"
+errors_format = "{time:DD-MM-YYYY at HH:mm:ss} | {level} | {file} | {message}"
+security_format = "{time:DD-MM-YYYY at HH:mm:ss} | {level} | {message}"
+
+logger_common_args = {
+    "diagnose": True,
+    "backtrace": False,
+    "rotation": "10 Mb",
+    "retention": 1,
+    "compression": "zip",
+}
+
+PATH_FILE_DEBUG_LOGS = "./logs/debug.log"
+PATH_FILE_ERRORS_LOGS = "./logs/errors.log"
+PATH_FILE_RequestsManager = "./logs/RequestsManager.log"
+
+LOGGER_DEBUG = {
+    "sink": PATH_FILE_DEBUG_LOGS,
+    "level": "DEBUG",
+    "format": debug_format,
+    **logger_common_args
+}
+
+LOGGER_ERRORS = {
+    "sink": PATH_FILE_ERRORS_LOGS,
+    "level": "WARNING",
+    "format": errors_format,
+    **logger_common_args
+}

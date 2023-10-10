@@ -1,11 +1,20 @@
-from settings import pixel_meter
-from handlers.mission_manager import SprayMission
-from handlers.matrix_manager import Matrix
-from handlers.point import Point
-from handlers.conus import Conus
-from handlers.gazebo_manager import GazeboListener
-from handlers.opencv_manager import OpencvManager
+from loguru import logger
+import settings
 
+logger.add(**settings.LOGGER_DEBUG)
+logger.add(**settings.LOGGER_ERRORS)
+
+try:
+    from settings import pixel_meter
+    from handlers.mission_manager import SprayMission
+    from handlers.matrix_manager import Matrix
+    from handlers.point import Point
+    from handlers.conus import Conus
+    from handlers.gazebo_manager import GazeboListener
+    from handlers.opencv_manager import OpencvManager
+except ImportError as ex:
+    logger.error()
+    pass
 
 matrix_manager = Matrix(
     x_mission_list_origin=[1150, 1230, 1047, 972],
